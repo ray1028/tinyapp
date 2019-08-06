@@ -10,17 +10,17 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-  <%if(username === '' || username === undefined){ %>
-    <form method="POST" action="/login">
-      <input type="text" placeholder="username" name="username"/>
-      <button class="btn btn-primary">Sign in</button>
-    </form> 
-  <%} else{%>
-    <form method="POST" action="/logout">
-      <label>Logged In As: <%=username%>!</label>
-      <button class="btn btn-outline-light text-dark">Log Out</button>
-    </form> 
-  <% }%>
+    <div class="navbar-nav">
+    <%if(user === undefined){%>
+      <a class="nav-item nav-link" href="/login">Login</a> 
+      <a class="nav-item nav-link" href="/register">Register</a>
+    <%} else {%>
+      <form method="POST" action="/logout">
+        <label>Logged In As: <%=user.email%>!</label>
+        <button type="submit" class="btn btn-outline-light text-dark">Logout</button>
+      </form>
+    <%} %>
+    </div>
+    
   </nav>
 </header>
-

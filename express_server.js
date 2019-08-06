@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const users = require("./users");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -16,7 +17,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.redirect('/urls');
+  res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -28,12 +29,18 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies['username']};
+  let templateVars = {
+    urls: urlDatabase,
+    user: users.all()[req.cookies["user_id"]]
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = {username: req.cookies['username']} 
+  let templateVars = {
+    urls: urlDatabase,
+    user: users.all()[req.cookies["user_id"]]
+  };
   res.render("urls_new", templateVars);
 });
 
@@ -41,7 +48,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies['username']
+    user: users.all()[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
@@ -70,14 +77,51 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  let userID = "";
+  const email = req.body.email;
+  const password = req.body.password;
+  if (users.isValidUser(email, password)) {
+    userID = users.findUserByEmail(email).id;
+    res.cookie("user_id", userID);
+    res.redirect("/urls");
+  } else {
+    res.send(403);
+  }
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
-})
+app.get("/register", (req, res) => {
+  let templateVars = { user: users.all()[req.cookies["user_id"]] };
+  res.render("urls_registration", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  let obj = {};
+  let id = generateRandomString();
+  let email = req.body.email;
+  let password = req.body.password;
+
+  if (
+    req.body.email !== "" &&
+    req.body.password !== "" &&
+    !users.existed(email)
+  ) {
+    obj[id] = { id, email, password };
+    users.add(obj);
+    res.cookie("user_id", id);
+    res.redirect("/urls");
+  } else {
+    res.send(400);
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("urls_login", { user: users.all()[req.cookies["user_id"]] });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
