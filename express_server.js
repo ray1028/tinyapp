@@ -31,7 +31,6 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.statusCode = 200;
   res.render("urls_new");
 });
 
@@ -47,29 +46,24 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = longURL;
-  res.status = 302;
-  res.redirect("/urls/" + shortURL);
+  res.redirect('/urls/' + shortURL);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[shortURL];
   const shortURL = req.params.shortURL;
-  if (shortURL) {
-    res.statusCode = 200;
-    res.redirect(longURL);
-  }
-});
-
-app.get("/*", (req, res) => {
-  res.statusCode = 404;
-  res.end(`<h1>Server Not Found! Error ${res.statusCode}</h1>`);
+  const longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
+  delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
-});
+})
+
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[req.params.id] = req.body.newURL;
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -77,12 +71,9 @@ app.listen(PORT, () => {
 
 function generateRandomString() {
   let result = "";
-  const alphabets =
-    "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let alphabets = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   for (let i = 0; i < 6; i++) {
-    result += alphabets.charAt(
-      Math.floor(Math.random() * Math.floor(alphabets.length))
-    );
+     result += alphabets.charAt(Math.floor(Math.random() * Math.floor(alphabets.length)));
   }
   return result;
 }
