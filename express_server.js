@@ -5,7 +5,11 @@ const bodyParser = require("body-parser");
 const users = require("./users");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
-const urlDatabase = require("./url-data");
+
+const urlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+};
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -13,7 +17,7 @@ app.use(
     name: "session",
     keys: ["cookie monster"],
     // Cookie Options
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    // maxAge: 24 * 60 * 60 * 1000 // 24 hours
   })
 );
 
@@ -48,6 +52,7 @@ app.get("/urls", (req, res) => {
   if (!req.session.user_id) {
     access = false;
   }
+  console.log(users.all())
 
   let templateVars = {
     urls: urlDatabase,
@@ -144,7 +149,7 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   if (users.isValidUser(email, password)) {
     userID = users.findUserByEmail(email).id;
-    res.cookie("user_id", userID);
+    req.session.user_id = userID;
     res.redirect("/urls");
   } else {
     res

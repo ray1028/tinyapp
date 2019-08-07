@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 let users = {
   userRandomID: {
@@ -14,8 +14,11 @@ let users = {
 };
 
 module.exports = {
+  // return all users
   all: () => users,
+  // add single user
   add: obj => (users = { ...users, ...obj }),
+  // check if an email is existed in db
   existed: email => {
     for (let user in users) {
       if (users[user].email === email) {
@@ -24,32 +27,46 @@ module.exports = {
     }
     return false;
   },
-  isValidUser: (email , password) => {
-    for(let user in users){
-      if(users[user].email === email && 
-        bcrypt.compareSync(password,users[user].password))
-        {
+  // check if its a valid user credentials
+  isValidUser: (email, password) => {
+    for (let user in users) {
+      console.log(users[user].password)
+      if (
+        users[user].email === email &&
+        bcrypt.compareSync(password, users[user].password)
+      ) {
         return true;
       }
     }
     return false;
   },
-  findUserByEmail: (email) => {
-    for(let user in users){
-      if(users[user].email === email){
+  // return a single user by email
+  findUserByEmail: email => {
+    for (let user in users) {
+      if (users[user].email === email) {
         return users[user];
       }
     }
     return null;
   },
-  urlsForUser: (id) => {
-    let movieList = [];
-    for(let user in users){
-      if(user === id){
-        movieList.push(users[user].longURL);
+  // return a list of url for users by user_ID
+  urlsForUser: id => {
+    let urlList = [];
+    for (let user in users) {
+      if (user === id) {
+        urlList.push(users[user].longURL);
       }
     }
-    return movieList;
+    return urlList;
+  },
+  // return userID by an given url
+  findUserByUrl: url => {
+    let result = "";
+    for (let item in urlDatabase) {
+      if (url === item) {
+        result = urlDatabase[item].userID;
+      }
+    }
+    return result;
   }
 };
-

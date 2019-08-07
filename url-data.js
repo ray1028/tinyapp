@@ -3,4 +3,4 @@ const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
-module.exports = { urlDatabase };
+module.exports = urlDatabase;
