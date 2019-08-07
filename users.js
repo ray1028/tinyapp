@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 let users = {
   userRandomID: {
     id: "userRandomID",
@@ -24,7 +26,9 @@ module.exports = {
   },
   isValidUser: (email , password) => {
     for(let user in users){
-      if(users[user].email === email && users[user].password === password){
+      if(users[user].email === email && 
+        bcrypt.compareSync(password,users[user].password))
+        {
         return true;
       }
     }
