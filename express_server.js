@@ -11,9 +11,24 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
+// const urlDatabase = {
+//   b2xVn2: "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+};
+
+const findUserByUrl = (url) => {
+  let result = "";
+  for (let item in urlDatabase) {
+    if (url === item) {
+      result = urlDatabase[item].userID;
+    }
+  }
+  return result;
 };
 
 app.get("/", (req, res) => {
@@ -29,51 +44,94 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  //if user is not logged in set to false
+  let access = true;
+
+  if (!req.cookies.user_id) {
+    access = false;
+  }
+
   let templateVars = {
     urls: urlDatabase,
-    user: users.all()[req.cookies["user_id"]]
+    user: users.all()[req.cookies.user_id],
+    access,
+    currentUser: req.cookies.user_id
   };
+
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  // checking if a user is logged in from cookie user_id
+  if (!req.cookies.user_id) {
+    res.redirect("/login");
+  }
   let templateVars = {
     urls: urlDatabase,
-    user: users.all()[req.cookies["user_id"]]
+    user: users.all()[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  let access = true;
+
+  if (!req.cookies.user_id) {
+    access = false;
+  }
+  
   let templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    user: users.all()[req.cookies["user_id"]]
+    longURL: req.cookies.user_id ? 
+      urlDatabase[req.params.shortURL].longURL 
+      : '',
+    user: users.all()[req.cookies.user_id],
+    access
   };
+
+
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {
+    longURL,
+    userID: req.cookies.user_id
+  };
+
   res.redirect("/urls/" + shortURL);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+  if(urlDatabase[shortURL]){
+    res.redirect(urlDatabase[shortURL].longURL);
+  } else {
+   res.status(404).send('404 Page Not Found'); 
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  const shortURL = req.params.shortURL;
+  const userID = findUserByUrl(shortURL);
+  if (req.cookies.user_id && req.cookies.user_id === userID){
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  } else {
+    res.status(403).send('403 Unauthorized Error');
+  }
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.newURL;
-  res.redirect("/urls");
+  const newURL = req.body.newURL;
+  if (req.cookies.user_id && req.cookies.user_id === urlDatabase[req.params.id].userID) {
+    urlDatabase[req.params.id].longURL = newURL;
+    res.redirect("/urls");
+  } else {
+    res.status(403).send('403 Unauthorized Error');
+  }
 });
 
 app.post("/login", (req, res) => {
@@ -85,7 +143,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id", userID);
     res.redirect("/urls");
   } else {
-    res.send(403);
+    res.status(403).send("403 Unauthorized Error");
   }
 });
 
@@ -115,12 +173,12 @@ app.post("/register", (req, res) => {
     res.cookie("user_id", id);
     res.redirect("/urls");
   } else {
-    res.send(400);
+    res.status(400).send("400 Bad Request error");
   }
 });
 
 app.get("/login", (req, res) => {
-  res.render("urls_login", { user: users.all()[req.cookies["user_id"]] });
+  res.render("urls_login", { user: users.all()[req.cookies.user_id] });
 });
 
 app.listen(PORT, () => {

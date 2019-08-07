@@ -11,31 +11,67 @@
 <body>
   <main style="margin: 1em;">
     <%include ./partials/_header.ejs%>
-    <h3>My URLs</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Short URL</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for(let url in urls) { %>
+    <%if(access){ %>
+     <h3>My URLs</h3>
+      <table class="table">
+        <thead>
           <tr>
-            <td><%= url %></td>
-            <td><%= urls[url] %></td>
-            <form method="GET" action="/urls/<%=url%>">
-              <td><button class="btn btn-outline-primary">Edit</button></td>
-            </form>
-            <form method="POST" action="/urls/<%=url%>/delete">
-              <td><button class="btn btn-outline-danger">Delete</button></td>
-            </form>
+            <th scope="col">Short URL</th>
+            <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
           </tr>
-        <% } %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% for(let url in urls) { 
+            if(urls[url].userID === user.id){ %>
+            <tr>
+              <td><%= url %></td>
+              <td><%= urls[url].longURL %></td>
+              <form method="GET" action="/urls/<%=url%>">
+                <td><button class="btn btn-outline-primary">Edit</button></td>
+              </form>
+              <form method="POST" action="/urls/<%=url%>/delete">
+                <td><button class="btn btn-outline-danger">Delete</button></td>
+              </form>
+            </tr>
+          <% } 
+          }%>
+        </tbody>
+      </table>
+    <%} else{  %>
+    <script>
+      alert("Please login or register");
+    </script>
+    <div id="login">
+        <h3 class="text-center text-white pt-5">Login form</h3>
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" action="/login" method="POST">
+                            <h3 class="text-center text-success">Login</h3>
+                            <div class="form-group">
+                                <label for="email" class="text-success">Email:</label><br>
+                                <input type="text" name="email" id="email" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="text-success">Password:</label><br>
+                                <input type="text" name="password" id="password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="submit" class="btn btn-success btn-md" value="submit">
+                            </div>
+                            <div id="register-link" class="text-right">
+                                <a href="/register" class="text-success">Register here</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%} %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

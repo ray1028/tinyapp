@@ -8,20 +8,54 @@
 
 <body>
   <%include ./partials/_header.ejs%>
-  <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+  <%if(access){ %>
+    <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+          <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        </div>
+      <div class="card-footer text-muted">
+        <form method="post" action="/urls/<%= shortURL %>">
+          <h1>Edit</h1>
+          <label>New URL:</label><input type="text" name="newURL" placeholder="http://" value="http://"/>
+          <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
       </div>
-    <div class="card-footer text-muted">
-      <form method="post" action="/urls/<%= shortURL %>">
-        <h1>Edit</h1>
-        <label>New URL:</label><input type="text" name="newURL" placeholder="http://" value="http://"/>
-        <button class="btn btn-primary" type="submit">Submit</button>
-      </form>
     </div>
-  </div>
+  <%} else{ %>
+    <script>
+      alert("Please login or register");
+    </script>
+    <div id="login">
+        <h3 class="text-center text-white pt-5">Login form</h3>
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" action="/login" method="POST">
+                            <h3 class="text-center text-success">Login</h3>
+                            <div class="form-group">
+                                <label for="email" class="text-success">Email:</label><br>
+                                <input type="text" name="email" id="email" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="text-success">Password:</label><br>
+                                <input type="text" name="password" id="password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="submit" class="btn btn-success btn-md" value="submit">
+                            </div>
+                            <div id="register-link" class="text-right">
+                                <a href="/register" class="text-success">Register here</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <%} %>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

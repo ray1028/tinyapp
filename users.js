@@ -37,6 +37,15 @@ module.exports = {
       }
     }
     return null;
+  },
+  urlsForUser: (id) => {
+    let movieList = [];
+    for(let user in users){
+      if(user === id){
+        movieList.push(users[user].longURL);
+      }
+    }
+    return movieList;
   }
 };
 
