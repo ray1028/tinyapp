@@ -3,4 +3,14 @@ const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
-module.exports = urlDatabase;
+const findUserByUrl = url => {
+  let result = "";
+  for (let item in urlDatabase) {
+    if (url === item) {
+      result = urlDatabase[item].userID;
+    }
+  }
+  return result;
+};
+
+module.exports = {urlDatabase, findUserByUrl};
