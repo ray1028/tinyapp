@@ -103,13 +103,7 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL]) {
-    // console.log('click now')
-    console.log('******');
-    console.log(urlDatabase[shortURL]);
-    console.log(shortURL);
     urlDatabase[shortURL].totVisits += 1;
-    console.log(urlDatabase[shortURL].totVisits);
-
     res.redirect(urlDatabase[shortURL].longURL);
   } else {
     res.status(404).redirect("/urls_error");
