@@ -40,15 +40,15 @@ module.exports = {
     }
     return false;
   },
-  // return a single user by email
-  findUserByEmail: email => {
-    for (let user in users) {
-      if (users[user].email === email) {
-        return users[user];
-      }
-    }
-    return null;
-  },
+  // // return a single user by email
+  // findUserByEmail: email => {
+  //   for (let user in users) {
+  //     if (users[user].email === email) {
+  //       return users[user];
+  //     }
+  //   }
+  //   return null;
+  // },
   // return a list of url for users by user_ID
   urlsForUser: id => {
     let urlList = [];

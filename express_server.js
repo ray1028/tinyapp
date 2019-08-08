@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const users = require("./users");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
+const getUserByEmail = require('./helpers');
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totVisits: 0},
@@ -143,7 +144,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (users.isValidUser(email, password)) {
-    userID = users.findUserByEmail(email).id;
+    userID = getUserByEmail(email, users.all()).id;
     req.session.user_id = userID;
     res.redirect("/urls");
   } else {

@@ -54,6 +54,11 @@
     $(document).ready(function(){
       $('[data-toggle="popover"]').popover();
     })
+        $(document).mouseleave(function(){
+      $('[data-toggle="popover"]').off();
+    })
+
+    
   </script>
 
 </body>
