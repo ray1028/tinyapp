@@ -5,22 +5,27 @@ const bodyParser = require("body-parser");
 const users = require("./users");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
-const getUserByEmail = require('./helpers');
+const { findUserByEmail } = require("./helpers");
+const methodOverride = require("method-override");
+
+// let uniqUsers = [];
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totVisits: 0},
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totVisits: 0 }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totVisits: 0, uniqTotVisits: 0},
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totVisits: 0, uniqTotVisits: 0}
 };
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cookieSession({
     name: "session",
-    keys: ["cookie monster"],
+    keys: ["cookie monster"]
     // Cookie Options
     // maxAge: 24 * 60 * 60 * 1000 // 24 hours
   })
 );
+
+app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");
 
@@ -35,7 +40,7 @@ const findUserByUrl = url => {
 };
 
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -47,16 +52,15 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-
   if (!req.session.user_id) {
-    res.redirect('/login');
+    res.redirect("/login");
   } else {
     let templateVars = {
       urls: urlDatabase,
       user: users.all()[req.session.user_id],
       currentUser: req.session.user_id,
     };
-  
+
     res.render("urls_index", templateVars);
   }
 });
@@ -74,16 +78,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-
   if (!req.session.user_id) {
-    res.redirect('/login');
+    res.redirect("/login");
   } else {
     let templateVars = {
       shortURL: req.params.shortURL,
       longURL: req.session.user_id
         ? urlDatabase[req.params.shortURL].longURL
         : "",
-      user: users.all()[req.session.user_id],
+      user: users.all()[req.session.user_id]
     };
     res.render("urls_show", templateVars);
   }
@@ -104,14 +107,23 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL]) {
+    if(!urlDatabase[shortURL].totVisits){
+      urlDatabase[shortURL].totVisits = 0;
+      urlDatabase[shortURL].uniqTotVisits = 0;
+    }
     urlDatabase[shortURL].totVisits += 1;
+
+    // if(req.session.user_id){
+    //   checkUniqVisitor(req.session.user_id, shortURL, uniqUsers);
+    // }
+
     res.redirect(urlDatabase[shortURL].longURL);
   } else {
     res.status(404).redirect("/urls_error");
   }
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = findUserByUrl(shortURL);
   if (req.session.user_id && req.session.user_id === userID) {
@@ -124,7 +136,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   const newURL = req.body.newURL;
   if (
     req.session.user_id &&
@@ -144,7 +156,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (users.isValidUser(email, password)) {
-    userID = getUserByEmail(email, users.all()).id;
+    userID = findUserByEmail(email, users.all()).id;
     req.session.user_id = userID;
     res.redirect("/urls");
   } else {
@@ -181,12 +193,10 @@ app.post("/register", (req, res) => {
     req.session.user_id = id;
     res.redirect("/urls");
   } else {
-    res
-      .status(400)
-      .render("urls_error", {
-        error: "400 Bad Request error",
-        user: undefined
-      });
+    res.status(400).render("urls_error", {
+      error: "400 Bad Request error",
+      user: undefined
+    });
   }
 });
 

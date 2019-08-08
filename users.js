@@ -30,7 +30,6 @@ module.exports = {
   // check if its a valid user credentials
   isValidUser: (email, password) => {
     for (let user in users) {
-      console.log(users[user].password)
       if (
         users[user].email === email &&
         bcrypt.compareSync(password, users[user].password)
@@ -40,16 +39,6 @@ module.exports = {
     }
     return false;
   },
-  // // return a single user by email
-  // findUserByEmail: email => {
-  //   for (let user in users) {
-  //     if (users[user].email === email) {
-  //       return users[user];
-  //     }
-  //   }
-  //   return null;
-  // },
-  // return a list of url for users by user_ID
   urlsForUser: id => {
     let urlList = [];
     for (let user in users) {

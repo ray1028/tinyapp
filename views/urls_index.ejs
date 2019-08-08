@@ -31,7 +31,7 @@
               <form method="GET" action="/urls/<%=url%>">
                 <td><button class="btn btn-outline-primary">Edit</button></td>
               </form>
-              <form method="POST" action="/urls/<%=url%>/delete">
+              <form method="POST" action="/urls/<%=url%>?_method=DELETE">
                 <td><button class="btn btn-outline-danger">Delete</button></td>
               </form>
               <td>
@@ -55,7 +55,7 @@
       $('[data-toggle="popover"]').popover();
     })
         $(document).mouseleave(function(){
-      $('[data-toggle="popover"]').off();
+      $('[data-toggle="popover"]').popover('hide');
     })
 
     
