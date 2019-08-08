@@ -109,7 +109,6 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[shortURL]) {
     if(!urlDatabase[shortURL].totVisits){
       urlDatabase[shortURL].totVisits = 0;
-      urlDatabase[shortURL].uniqTotVisits = 0;
     }
     urlDatabase[shortURL].totVisits += 1;
 
