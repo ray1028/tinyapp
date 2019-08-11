@@ -36,7 +36,7 @@
               </form>
                <td> 
                 <button type="button" class="btn btn-warning" data-container="body" data-toggle="popover" data-placement="bottom"
-                  data-content="Your link has been created at: <%=urls[url].createDate %> It has been visited: <%=urls[url].totVisits %>  times.">Info</button>
+                  data-content="Your link has been created at: <%=urls[url].createDate %> It has been visited: <%=urls[url].totVisits %>  times by you. * There are <%= uniqUsers.filter(visit => visit.longUrl === urls[url].longURL).length %> total users visited this page">Info</button>
               </td>
             </tr>
           <% } 

@@ -8,11 +8,21 @@ const cookieSession = require("cookie-session");
 const { findUserByEmail } = require("./helpers");
 const methodOverride = require("method-override");
 
-// let uniqUsers = [];
+let uniqUsers = [];
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totVisits: 0, uniqTotVisits: 0},
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totVisits: 0, uniqTotVisits: 0}
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+    totVisits: 0,
+    uniqTotVisits: 0
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+    totVisits: 0,
+    uniqTotVisits: 0
+  }
 };
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -59,6 +69,7 @@ app.get("/urls", (req, res) => {
       urls: urlDatabase,
       user: users.all()[req.session.user_id],
       currentUser: req.session.user_id,
+      uniqUsers: uniqUsers ? uniqUsers : null
     };
 
     res.render("urls_index", templateVars);
@@ -107,14 +118,23 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL]) {
-    if(!urlDatabase[shortURL].totVisits){
+    if (!urlDatabase[shortURL].totVisits) {
       urlDatabase[shortURL].totVisits = 0;
     }
     urlDatabase[shortURL].totVisits += 1;
 
-    // if(req.session.user_id){
-    //   checkUniqVisitor(req.session.user_id, shortURL, uniqUsers);
-    // }
+    if (
+      !uniqUsers.find(
+        user =>
+          user.userId === req.session.user_id &&
+          user.longUrl == urlDatabase[shortURL].longURL
+      )
+    ) {
+      uniqUsers.push({
+        userId: req.session.user_id,
+        longUrl: urlDatabase[shortURL].longURL
+      });
+    }
 
     res.redirect(urlDatabase[shortURL].longURL);
   } else {
